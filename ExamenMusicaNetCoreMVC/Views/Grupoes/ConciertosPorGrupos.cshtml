@@ -1,0 +1,143 @@
+﻿@model IList<ExamenMusicaNetCoreMVC.ViewModels.ConciertoGroupByGrupos>
+
+@{
+    ViewData["Title"] = "ConciertosPorGrupos";
+}
+
+<h1>ConciertosPorGrupos</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="d-flex justify-content-around">
+    @foreach (var item in Model)
+    {
+        <form asp-action="ConciertosPorGrupos" asp-controller="Grupoes">
+            <input type="submit" name="grupo" style="height: 40px; width: 150px; background-color: yellow" value="@Html.DisplayFor(ModelItem => item.NombreGrupo);color:white;" />
+        </form>
+    }
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nombre Grupo
+            </th>
+            <th>
+                Id
+            </th>
+            <th>
+                Fecha
+            </th>
+            <th>
+                Genero
+            </th>
+            <th>
+                Lugar
+            </th>
+            <th>
+                Titulo
+            </th>
+            <th>
+                Precio
+            </th>
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            int tamano = ViewBag.Size;
+            int pagina = ViewBag.Page;
+            int count = (ViewBag.Page - 1) * tamano;
+            int totalElementos = 0;
+            string elGrupo = "";
+            Console.WriteLine("Tamaño: " + tamano + ", pagina: " + pagina + ", contador: " + count + ", cota superior: " + tamano * (pagina) + ", grupo: " + ViewBag.Grupo);
+            @foreach (var Linea in item.ListaConciertos)
+            {
+                @if ((Linea.Grupo == null ? "" : Linea.Grupo).Equals(ViewBag.Grupo))
+                {
+                    elGrupo = Linea.Grupo;
+                    totalElementos++;
+                }
+                @if (((Linea.Grupo == null ? "" : Linea.Grupo).Equals(ViewBag.Grupo) && totalElementos < tamano * (pagina) && count < totalElementos))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => Linea.Grupo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => Linea.Id)
+                        </td>
+                        <td>
+                            
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => Linea.Genero)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => Linea.Lugar)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => Linea.Titulo)
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new
+                                {
+                                    /* id=item.PrimaryKey */
+                                }) |
+                            @Html.ActionLink("Details", "Details", new
+                                {
+                                    /* id=item.PrimaryKey */
+                                }) |
+                            @Html.ActionLink("Delete", "Delete", new
+                                {
+                                    /* id=item.PrimaryKey */
+                                })
+                        </td>
+                    </tr>
+                }
+            }
+            @if (ViewBag.Grupo.Equals(elGrupo)) ViewBag.Total = (totalElementos / ViewBag.size) + 1;
+        }
+    </tbody>
+</table>
+<div class="d-flex">
+    Pagina
+    <form asp-action="ConciertosPorGrupos" asp-controller="Grupoes" class="m-3">
+        <input type="hidden" value="@((ViewBag.Page != 1 ? @ViewBag.Page - 1 : 1))" name="page" />
+        <input type="hidden" name="size" value="@(@ViewBag.Size)" />
+        <input type="hidden" name="total" value="@(@ViewBag.Total)" />
+        <input type="hidden" name="grupo" value="@(@ViewBag.Grupo)" />
+        <input type="submit" asp-action="ConciertosPorGrupos" asp-controller="Grupoes" name="page" class="p-3" value="@(ViewBag.Page != 1 ? ViewBag.Page - 1 : 1)">
+    </form>
+
+    <form asp-action="ConciertosPorGrupos" asp-controller="Grupoes" class="m-3">
+        <input type="hidden" value="@(ViewBag.Page + 1)" name="page" />
+        <input type="hidden" name="size" value="@(@ViewBag.Size)" />
+        <input type="hidden" name="total" value="@(@ViewBag.Total)" />
+        <input type="hidden" name="grupo" value="@(@ViewBag.Grupo)" />
+        <input type="submit" asp-action="ConciertosPorGrupos" asp-controller="Grupoes" name="page" class="p-3" value="@(ViewBag.Page + 1)">
+    </form>
+    <form asp-action="ConciertosPorGrupos" asp-controller="Grupoes" class="m-3">
+        <input type="number" name="page" />
+        <input type="hidden" name="size" value="@(@ViewBag.Size)" />
+        <input type="hidden" name="total" value="@(@ViewBag.Total)" />
+        <input type="hidden" name="grupo" value="@(@ViewBag.Grupo)" />
+        <input type="submit" asp-action="ConciertosPorGrupos" asp-controller="Grupoes" name="page" class="p-3" value="Enviar pagina">
+    </form>
+    <form asp-action="ConciertosPorGrupos" asp-controller="Grupoes" class="m-3">
+        Escribe la cantidad de filas por pagina: <input type="number" name="size" value="@(ViewBag.Size)" />
+        <input type="hidden" name="total" value="@(@ViewBag.Total)" />
+        <input type="hidden" name="grupo" value="@(@ViewBag.Grupo)" />
+        <input type="hidden" name="page" value="@(@ViewBag.Page)" />
+        <input type="submit" asp-action="ConciertosPorGrupos" asp-controller="Grupoes" name="size" class="p-3" value="Enviar pagina">
+    </form>
+</div>
+<input type="hidden" value="9999999" id="numFilas" />
+Total paginas: @(ViewBag.page) de @(ViewBag.Total)

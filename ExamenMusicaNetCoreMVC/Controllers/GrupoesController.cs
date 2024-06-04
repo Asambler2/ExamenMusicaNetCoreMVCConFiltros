@@ -7,17 +7,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.ViewModels;
 using Microsoft.Data.SqlClient;
+using System.Drawing;
+using System.Security.Policy;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class GrupoesController : Controller
     {
         private readonly ExamenMusicaNetCoreMVCContext _context;
+        public readonly IListaGruposConListaDeConciertos BuilderLista;
 
-        public GrupoesController(ExamenMusicaNetCoreMVCContext context)
+        public GrupoesController(ExamenMusicaNetCoreMVCContext context, IListaGruposConListaDeConciertos builderLista)
         {
             _context = context;
+            this.BuilderLista = builderLista;
         }
 
         // GET: Grupoes
@@ -39,6 +44,15 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             }
 
             return View(await _context.Grupos.ToListAsync());
+        }
+
+        public async Task<IActionResult> ConciertosPorGrupos(string grupo = "", int page = 1, int size = 20, int total = 0)
+        {
+            ViewBag.Page = page;
+            ViewBag.Size = size;
+            ViewBag.Total = total;
+            ViewBag.Grupo = grupo;
+            return View(this.BuilderLista.DameGruposConListaConciertos());
         }
 
         // GET: Grupoes/Details/5
