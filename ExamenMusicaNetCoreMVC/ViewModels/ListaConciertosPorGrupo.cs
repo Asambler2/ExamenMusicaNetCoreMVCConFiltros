@@ -24,12 +24,12 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
                 select new Concierto()
                 {
                     Id = c.Id,
-                    //Fecha = c.Fecha == null ? DateTime.MinValue : c.Fecha,
+                    Fecha = c.Fecha == null ? DateTime.MinValue : c.Fecha,
                     Grupo = g.Nombre,
                     Genero = c.Genero,
                     Lugar = c.Lugar,
                     Titulo = c.Titulo,
-                    //Precio = c.Precio == null ? 0: c.Precio
+                    Precio = c.Precio == null ? 0 : c.Precio
                 };
             return resultado.ToList();
         }
