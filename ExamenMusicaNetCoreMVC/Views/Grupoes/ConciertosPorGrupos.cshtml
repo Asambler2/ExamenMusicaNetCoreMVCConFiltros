@@ -9,6 +9,15 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-action="ConciertosPorGrupos" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Busca por Nombre: <input id="texto" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Vuelve a la lista entera</a>
+        </p>
+    </div>
+</form>
 <div class="d-flex justify-content-around">
     @foreach (var item in Model)
     {
@@ -18,7 +27,7 @@
         </form>
     }
 </div>
-<table class="table">
+<table class="table" id="tableData">
     <thead>
         <tr>
             <th>
