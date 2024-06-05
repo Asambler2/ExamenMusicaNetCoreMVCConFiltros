@@ -1,14 +1,13 @@
 ﻿
-using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.Models;
 
 namespace ExamenMusicaNetCoreMVC.ViewModels
 {
     public class ListaConciertosPorGrupo : IListaConciertosPorGrupo
     {
-        private readonly ExamenMusicaNetCoreMVCContext _context;
+        private readonly GrupoCContext _context;
 
-        public ListaConciertosPorGrupo(ExamenMusicaNetCoreMVCContext _context)
+        public ListaConciertosPorGrupo(GrupoCContext _context)
         {
             this._context= _context;
         }

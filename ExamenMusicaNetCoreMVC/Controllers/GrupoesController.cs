@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.Models;
 using ExamenMusicaNetCoreMVC.ViewModels;
 using Microsoft.Data.SqlClient;
@@ -16,10 +15,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class GrupoesController : Controller
     {
-        private readonly ExamenMusicaNetCoreMVCContext _context;
+        private readonly GrupoCContext _context;
         public readonly IListaGruposConListaDeConciertos BuilderLista;
 
-        public GrupoesController(ExamenMusicaNetCoreMVCContext context, IListaGruposConListaDeConciertos builderLista)
+        public GrupoesController(GrupoCContext context, IListaGruposConListaDeConciertos builderLista)
         {
             _context = context;
             this.BuilderLista = builderLista;

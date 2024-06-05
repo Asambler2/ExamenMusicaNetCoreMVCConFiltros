@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios;
 using Microsoft.Data.SqlClient;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class UsuariosController : Controller
     {
-        private readonly ExamenMusicaNetCoreMVCContext _context;
+        private readonly IRepositorioUsuarios _context;
 
-        public UsuariosController(ExamenMusicaNetCoreMVCContext context)
+        public UsuariosController(IRepositorioUsuarios context)
         {
             _context = context;
         }
@@ -23,28 +23,28 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Usuarios
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            ViewData["OrdenNombre"] = sortOrder == "Nombre" ? "Nombre_desc" : "Nombre";
-            ViewData["OrdenEmail"] = sortOrder == "Email" ? "Email_desc" : "Email";
-            ViewData["OrdenPass"] = sortOrder == "Pass" ? "Pass_desc" : "Pass";
+            //ViewData["OrdenNombre"] = sortOrder == "Nombre" ? "Nombre_desc" : "Nombre";
+            //ViewData["OrdenEmail"] = sortOrder == "Email" ? "Email_desc" : "Email";
+            //ViewData["OrdenPass"] = sortOrder == "Pass" ? "Pass_desc" : "Pass";
 
-            ViewData["CurrentFilter"] = searchString;
+            //ViewData["CurrentFilter"] = searchString;
 
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                return View(await _context.Usuarios.Where(s => s.Nombre.Contains(searchString)).ToListAsync());
-            }
+            //if (!String.IsNullOrEmpty(searchString))
+            //{
+            //    return View(_context.DameTodos().Where(s => s.Nombre.Contains(searchString)).ToList());
+            //}
 
-            switch (sortOrder)
-            {
-                case "Pass": return View(await _context.Usuarios.OrderBy(s => s.Contraseña).ToListAsync());
-                case "Pass_desc": return View(await _context.Usuarios.OrderByDescending(s => s.Contraseña).ToListAsync());
-                case "Email": return View(await _context.Usuarios.OrderBy(s => s.Email).ToListAsync());
-                case "Email_desc": return View(await _context.Usuarios.OrderByDescending(s => s.Email).ToListAsync());
-                case "Nombre": return View(await _context.Usuarios.OrderBy(s => s.Nombre).ToListAsync());
-                case "Nombre_desc": return View(await _context.Usuarios.OrderByDescending(s => s.Nombre).ToListAsync());
-            }
+            //switch (sortOrder)
+            //{
+            //    case "Pass": return View( _context.DameTodos().OrderBy(s => s.Contraseña).ToList());
+            //    case "Pass_desc": return View(_context.DameTodos().OrderByDescending(s => s.Contraseña).ToList());
+            //    case "Email": return View(_context.DameTodos().OrderBy(s => s.Email).ToList());
+            //    case "Email_desc": return View(_context.DameTodos().OrderByDescending(s => s.Email).ToList());
+            //    case "Nombre": return View( _context.DameTodos().OrderBy(s => s.Nombre).ToList());
+            //    case "Nombre_desc": return View(_context.DameTodos().OrderByDescending(s => s.Nombre).ToList());
+            //}
 
-            return View(await _context.Usuarios.ToListAsync());
+            return View( _context.DameTodos().ToList());
         }
 
         // GET: Usuarios/Details/5
@@ -55,8 +55,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var usuario = _context.DameUno((int)id);
             if (usuario == null)
             {
                 return NotFound();
@@ -80,8 +79,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(usuario);
-                await _context.SaveChangesAsync();
+                _context.Agregar(usuario);
                 return RedirectToAction(nameof(Index));
             }
             return View(usuario);
@@ -95,7 +93,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = _context.DameUno((int)id);
             if (usuario == null)
             {
                 return NotFound();
@@ -119,8 +117,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(usuario);
-                    await _context.SaveChangesAsync();
+                    _context.Modificar((int)id, usuario);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -146,8 +143,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var usuario = _context.DameUno((int)id);
             if (usuario == null)
             {
                 return NotFound();
@@ -161,19 +157,22 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = _context.DameUno((int)id);
             if (usuario != null)
             {
-                _context.Usuarios.Remove(usuario);
+                _context.BorrarUsuario((int)id);
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UsuarioExists(int id)
         {
-            return _context.Usuarios.Any(e => e.Id == id);
+            if (_context.DameUno((int)id) == null)
+                return false;
+            else
+            {
+                return true;
+            }
         }
     }
 }

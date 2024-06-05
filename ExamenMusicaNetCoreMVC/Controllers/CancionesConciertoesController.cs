@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.Models;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class CancionesConciertoesController : Controller
     {
-        private readonly ExamenMusicaNetCoreMVCContext _context;
+        private readonly GrupoCContext _context;
 
-        public CancionesConciertoesController(ExamenMusicaNetCoreMVCContext context)
+        public CancionesConciertoesController(GrupoCContext context)
         {
             _context = context;
         }

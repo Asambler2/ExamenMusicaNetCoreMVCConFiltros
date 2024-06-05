@@ -1,17 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.ViewModels;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ExamenMusicaNetCoreMVCContext>(options =>
+builder.Services.AddDbContext<GrupoCContext>(options =>
     options.UseSqlServer("server=musicagrupos.database.windows.net;database=GrupoC;user=as;password=P0t@t0P0t@t0;"));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IListaConciertosPorGrupo, ListaConciertosPorGrupo>();
 builder.Services.AddScoped<IListaGruposConListaDeConciertos, ListaGruposConListaDeConciertos>();
+builder.Services.AddScoped<IRepositorioUsuarios, EFUsuarioRepositorio>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

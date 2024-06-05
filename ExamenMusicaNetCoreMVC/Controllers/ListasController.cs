@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ExamenMusicaNetCoreMVC.Data;
 using ExamenMusicaNetCoreMVC.Models;
 using Microsoft.Data.SqlClient;
 
@@ -13,9 +12,9 @@ namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class ListasController : Controller
     {
-        private readonly ExamenMusicaNetCoreMVCContext _context;
+        private readonly GrupoCContext _context;
 
-        public ListasController(ExamenMusicaNetCoreMVCContext context)
+        public ListasController(GrupoCContext context)
         {
             _context = context;
         }

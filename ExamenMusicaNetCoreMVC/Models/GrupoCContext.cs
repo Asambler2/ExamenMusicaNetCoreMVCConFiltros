@@ -69,7 +69,6 @@ public partial class GrupoCContext : DbContext
 
         modelBuilder.Entity<Cancione>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Genero)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -84,8 +83,6 @@ public partial class GrupoCContext : DbContext
 
         modelBuilder.Entity<CancionesConcierto>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
             entity.HasOne(d => d.Canciones).WithMany(p => p.CancionesConciertos)
                 .HasForeignKey(d => d.CancionesId)
                 .HasConstraintName("FK_CancionesConciertos_Canciones");
@@ -97,7 +94,6 @@ public partial class GrupoCContext : DbContext
 
         modelBuilder.Entity<Concierto>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Genero)
                 .HasMaxLength(50)
@@ -113,8 +109,6 @@ public partial class GrupoCContext : DbContext
 
         modelBuilder.Entity<ConciertosGrupo>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
             entity.HasOne(d => d.Conciertos).WithMany(p => p.ConciertosGrupos)
                 .HasForeignKey(d => d.ConciertosId)
                 .HasConstraintName("FK_ConciertosGrupos_Conciertos");
