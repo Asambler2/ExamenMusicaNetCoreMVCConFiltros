@@ -13,7 +13,7 @@
     @foreach (var item in Model)
     {
         <form asp-action="ConciertosPorGrupos" asp-controller="Grupoes">
-            <input type="submit" name="grupo" style="height: 40px; width: 150px; background-color: yellow" value="@Html.DisplayFor(ModelItem => item.NombreGrupo);color:white;" />
+            <input type="submit" name="grupo" style="height: 40px; width: 150px; background-color: cornflowerblue;color:white;" value="@Html.DisplayFor(ModelItem => item.NombreGrupo)" />
         </form>
     }
 </div>

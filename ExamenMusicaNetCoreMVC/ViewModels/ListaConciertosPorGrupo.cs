@@ -20,6 +20,7 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
                     on c.Id equals cg.ConciertosId
                     join g in _context.Grupos
                     on cg.GruposId equals g.Id
+                where g.Nombre.Equals(Grupo)
                 select new Concierto()
                 {
                     Id = c.Id,
