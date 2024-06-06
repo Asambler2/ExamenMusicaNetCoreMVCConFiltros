@@ -58,16 +58,16 @@ namespace ExamenMusicaNetCoreMVC.Servicios
             return listaUsuarios.Remove(DameUno(Id));
         }
 
-        public bool Agregar(Usuario product)
+        public bool Agregar(Usuario usuario)
         {
-            this.listaUsuarios.Add(product);
+            this.listaUsuarios.Add(usuario);
             return true;
         }
 
-        public void Modificar(int Id, Usuario product)
+        public void Modificar(int Id, Usuario usuario)
         {
             BorrarUsuario(Id);
-            Agregar(product);
+            Agregar(usuario);
         }
     }
 }
