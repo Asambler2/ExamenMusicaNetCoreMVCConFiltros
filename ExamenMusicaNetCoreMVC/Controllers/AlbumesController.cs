@@ -14,12 +14,14 @@ namespace ExamenMusicaNetCoreMVC.Controllers
     public class AlbumesController : Controller
     {
         private readonly IRepositorioGenerico<Albume> _context;
+        private readonly IRepositorioGenerico<VistaAlbume> _contextVista;
         private readonly IRepositorioGenerico<Grupo> _grupoContext;
 
-        public AlbumesController(IRepositorioGenerico<Albume> context, IRepositorioGenerico<Grupo> grupoContext)
+        public AlbumesController(IRepositorioGenerico<Albume> context, IRepositorioGenerico<Grupo> grupoContext, IRepositorioGenerico<VistaAlbume> contextVista)
         {
             _context = context;
             _grupoContext = grupoContext;
+            _contextVista = contextVista;
 
         }
 
@@ -27,16 +29,15 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         public async Task<IActionResult> Index()
         {
 
-            var examenMusicaNetCoreMVCContext = _context.DameTodos();
+            var examenMusicaNetCoreMVCContext = _contextVista.DameTodos();
 
-            
-            return View(examenMusicaNetCoreMVCContext.ToList());
+            return View(examenMusicaNetCoreMVCContext);
         }
 
         public async Task<IActionResult> IndexAlbum()
         {
 
-            var examenMusicaNetCoreMVCContext = _context.DameTodos();
+            var examenMusicaNetCoreMVCContext = _contextVista.DameTodos();
             var filtrado = from album in examenMusicaNetCoreMVCContext
                 where album.Genero.ToLower().Equals("heavy metal") && album.Titulo.Contains("u")
                 select album;
@@ -53,7 +54,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = _context.DameUno((int)id);
+            var albume = _contextVista.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
@@ -78,7 +79,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(albume);;
+                _context.Agregar((Albume)albume);;
                 return RedirectToAction(nameof(Index));
             }
             ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
