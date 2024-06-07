@@ -7,15 +7,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Models;
 using ExamenMusicaNetCoreMVC.Servicios;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 using Microsoft.Data.SqlClient;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class UsuariosController : Controller
     {
-        private readonly IRepositorioUsuarios _context;
+        private readonly IRepositorioGenerico<Usuario> _context;
 
-        public UsuariosController(IRepositorioUsuarios context)
+        public UsuariosController(IRepositorioGenerico<Usuario> context)
         {
             _context = context;
         }
@@ -23,27 +24,6 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Usuario
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            //ViewData["OrdenNombre"] = sortOrder == "Nombre" ? "Nombre_desc" : "Nombre";
-            //ViewData["OrdenEmail"] = sortOrder == "Email" ? "Email_desc" : "Email";
-            //ViewData["OrdenPass"] = sortOrder == "Pass" ? "Pass_desc" : "Pass";
-
-            //ViewData["CurrentFilter"] = searchString;
-
-            //if (!String.IsNullOrEmpty(searchString))
-            //{
-            //    return View(_context.DameTodos().Where(s => s.Nombre.Contains(searchString)).ToList());
-            //}
-
-            //switch (sortOrder)
-            //{
-            //    case "Pass": return View( _context.DameTodos().OrderBy(s => s.Contraseña).ToList());
-            //    case "Pass_desc": return View(_context.DameTodos().OrderByDescending(s => s.Contraseña).ToList());
-            //    case "Email": return View(_context.DameTodos().OrderBy(s => s.Email).ToList());
-            //    case "Email_desc": return View(_context.DameTodos().OrderByDescending(s => s.Email).ToList());
-            //    case "Nombre": return View( _context.DameTodos().OrderBy(s => s.Nombre).ToList());
-            //    case "Nombre_desc": return View(_context.DameTodos().OrderByDescending(s => s.Nombre).ToList());
-            //}
-
             return View( _context.DameTodos().ToList());
         }
 
@@ -160,7 +140,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             var usuario = _context.DameUno((int)id);
             if (usuario != null)
             {
-                _context.BorrarUsuario((int)id);
+                _context.Borrar((int)id);
             }
             return RedirectToAction(nameof(Index));
         }
