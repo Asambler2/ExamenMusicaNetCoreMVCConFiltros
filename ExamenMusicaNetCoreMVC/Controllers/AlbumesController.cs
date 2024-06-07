@@ -7,60 +7,42 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class AlbumesController : Controller
     {
-        private readonly GrupoCContext _context;
+        private readonly IRepositorioGenerico<Albume> _context;
+        private readonly IRepositorioGenerico<Grupo> _grupoContext;
 
-        public AlbumesController(GrupoCContext context)
+        public AlbumesController(IRepositorioGenerico<Albume> context, IRepositorioGenerico<Grupo> grupoContext)
         {
             _context = context;
+            _grupoContext = grupoContext;
+
         }
 
         // GET: Albumes
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index()
         {
 
-            var examenMusicaNetCoreMVCContext = _context.Albumes.Include(a => a.Grupos);
+            var examenMusicaNetCoreMVCContext = _context.DameTodos();
 
-            ViewData["OrdenFecha"] = sortOrder == "Fecha" ? "Fecha_desc" : "Fecha";
-            ViewData["OrdenGenero"] = sortOrder == "Genero" ? "Genero_desc" : "Genero";
-            ViewData["OrdenTitulo"] = sortOrder == "Titulo" ? "Titulo_desc" : "Titulo";
-            ViewData["OrdenGrupo"] = sortOrder == "Grupo" ? "Grupo_desc" : "Grupo";
-
-            ViewData["CurrentFilter"] = searchString;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                return View(await examenMusicaNetCoreMVCContext.Where(s => s.Titulo.Contains(searchString)).ToListAsync());
-            }
-
-            switch (sortOrder)
-            {
-                case "Fecha":  return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Fecha).ToListAsync());
-                case "Fecha_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Fecha).ToListAsync());
-                case "Genero": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Genero).ToListAsync());
-                case "Genero_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Genero).ToListAsync());
-                case "Titulo": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Titulo).ToListAsync());
-                case "Titulo_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Titulo).ToListAsync());
-                case "Grupo": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Grupos).ToListAsync());
-                case "Grupo_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Grupos).ToListAsync());
-            }
-            return View(await examenMusicaNetCoreMVCContext.ToListAsync());
+            
+            return View(examenMusicaNetCoreMVCContext.ToList());
         }
 
         public async Task<IActionResult> IndexAlbum()
         {
 
-            var examenMusicaNetCoreMVCContext = _context.Albumes.Include(a => a.Grupos);
+            var examenMusicaNetCoreMVCContext = _context.DameTodos();
             var filtrado = from album in examenMusicaNetCoreMVCContext
                 where album.Genero.ToLower().Equals("heavy metal") && album.Titulo.Contains("u")
                 select album;
 
 
-            return View(await filtrado.ToListAsync());
+            return View(filtrado.ToList());
         }
 
         // GET: Albumes/Details/5
@@ -71,9 +53,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = await _context.Albumes
-                .Include(a => a.Grupos)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var albume = _context.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
@@ -85,7 +65,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Albumes/Create
         public IActionResult Create()
         {
-            ViewData["GruposId"] = new SelectList(_context.Set<Grupo>(), "Id", "Nombre");
+            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre");
             return View();
         }
 
@@ -98,11 +78,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(albume);
-                await _context.SaveChangesAsync();
+                _context.Agregar(albume);;
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GruposId"] = new SelectList(_context.Set<Grupo>(), "Id", "Nombre", albume.GruposId);
+            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
             return View(albume);
         }
 
@@ -114,12 +93,12 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = await _context.Albumes.FindAsync(id);
+            var albume = _context.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
             }
-            ViewData["GruposId"] = new SelectList(_context.Set<Grupo>(), "Id", "Nombre", albume.GruposId);
+            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
             return View(albume);
         }
 
@@ -139,8 +118,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(albume);
-                    await _context.SaveChangesAsync();
+                    _context.Modificar(id, albume);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -155,7 +133,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GruposId"] = new SelectList(_context.Set<Grupo>(), "Id", "Nombre", albume.GruposId);
+            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
             return View(albume);
         }
 
@@ -167,9 +145,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = await _context.Albumes
-                .Include(a => a.Grupos)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var albume = _context.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
@@ -183,19 +159,18 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var albume = await _context.Albumes.FindAsync(id);
+            var albume = _context.DameUno((int)id);
             if (albume != null)
             {
-                _context.Albumes.Remove(albume);
+                _context.Borrar((int)id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AlbumeExists(int id)
         {
-            return _context.Albumes.Any(e => e.Id == id);
+            return _context.DameTodos().ToList().Any(e => e.Id == id);
         }
     }
 }

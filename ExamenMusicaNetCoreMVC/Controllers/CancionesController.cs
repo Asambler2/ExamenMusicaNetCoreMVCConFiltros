@@ -6,46 +6,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 using Microsoft.Data.SqlClient;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class CancionesController : Controller
     {
-        private readonly GrupoCContext _context;
+        private readonly IRepositorioGenerico<Cancione> _context;
+        private readonly IRepositorioGenerico<Albume> _albunescontext;
 
-        public CancionesController(GrupoCContext context)
+        public CancionesController(IRepositorioGenerico<Cancione> context, IRepositorioGenerico<Albume> Albunescontext)
         {
             _context = context;
+            _albunescontext = Albunescontext;
         }
 
         // GET: Canciones
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            var examenMusicaNetCoreMVCContext = _context.Canciones.Include(c => c.Albumes);
+            var examenMusicaNetCoreMVCContext = _context.DameTodos().ToList();
 
-            ViewData["OrdenFecha"] = sortOrder == "Fecha" ? "Fecha_desc" : "Fecha";
-            ViewData["OrdenGenero"] = sortOrder == "Genero" ? "Genero_desc" : "Genero";
-            ViewData["OrdenTitulo"] = sortOrder == "Titulo" ? "Titulo_desc" : "Titulo";
-
-            ViewData["CurrentFilter"] = searchString;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                return View(await examenMusicaNetCoreMVCContext.Where(s => s.Titulo.Contains(searchString)).ToListAsync());
-            }
-
-            switch (sortOrder)
-            {
-                case "Fecha": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Fecha).ToListAsync());
-                case "Fecha_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Fecha).ToListAsync());
-                case "Genero": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Genero).ToListAsync());
-                case "Genero_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Genero).ToListAsync());
-                case "Titulo": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Titulo).ToListAsync());
-                case "Titulo_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Titulo).ToListAsync());
-            }
-
-            return View(await examenMusicaNetCoreMVCContext.ToListAsync());
+            return View(examenMusicaNetCoreMVCContext);
         }
 
         // GET: Canciones/Details/5
@@ -56,9 +38,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = await _context.Canciones
-                .Include(c => c.Albumes)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cancione = _context.DameUno((int)id)
+    
             if (cancione == null)
             {
                 return NotFound();
@@ -70,7 +51,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Canciones/Create
         public IActionResult Create()
         {
-            ViewData["AlbumesId"] = new SelectList(_context.Albumes, "Id", "Titulo");
+            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo");
             return View();
         }
 
@@ -83,11 +64,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(cancione);
-                await _context.SaveChangesAsync();
+                _context.Agregar(cancione);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AlbumesId"] = new SelectList(_context.Albumes, "Id", "Titulo", cancione.AlbumesId);
+            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo", cancione.AlbumesId);
             return View(cancione);
         }
 
@@ -99,12 +79,12 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = await _context.Canciones.FindAsync(id);
+            var cancione = _context.DameUno((int)id);
             if (cancione == null)
             {
                 return NotFound();
             }
-            ViewData["AlbumesId"] = new SelectList(_context.Albumes, "Id", "Titulo", cancione.AlbumesId);
+            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo", cancione.AlbumesId);
             return View(cancione);
         }
 
@@ -124,8 +104,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(cancione);
-                    await _context.SaveChangesAsync();
+                    _context.Modificar((int)id, cancione);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -140,7 +119,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AlbumesId"] = new SelectList(_context.Albumes, "Id", "Titulo", cancione.AlbumesId);
+            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo", cancione.AlbumesId);
             return View(cancione);
         }
 
@@ -152,9 +131,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = await _context.Canciones
-                .Include(c => c.Albumes)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cancione = _context.DameUno((int)id);
+
             if (cancione == null)
             {
                 return NotFound();
@@ -168,19 +146,18 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cancione = await _context.Canciones.FindAsync(id);
+            var cancione = _context.DameUno((int)id);
             if (cancione != null)
             {
-                _context.Canciones.Remove(cancione);
+                _context.Borrar((int)id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CancioneExists(int id)
         {
-            return _context.Canciones.Any(e => e.Id == id);
+            return _context.DameTodos().ToList().Any(e => e.Id == id);
         }
     }
 }

@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 using Microsoft.Data.SqlClient;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class ArtistasController : Controller
     {
-        private readonly GrupoCContext _context;
+        private readonly IRepositorioGenerico<Artista> _context;
 
-        public ArtistasController(GrupoCContext context)
+        public ArtistasController(IRepositorioGenerico<Artista> context)
         {
             _context = context;
         }
@@ -22,36 +23,16 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Artistas
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            ViewData["OrdenNombre"] = sortOrder == "Nombre" ? "Nombre_desc" : "Nombre";
-            ViewData["OrdenGenero"] = sortOrder == "Genero" ? "Genero_desc" : "Genero";
-            ViewData["OrdenFecha"] = sortOrder == "Fecha" ? "Fecha_desc" : "Fecha";
-
-            ViewData["CurrentFilter"] = searchString;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                return View(await _context.Artistas.Where(s => s.Nombre.Contains(searchString)).ToListAsync());
-            }
-
-            switch (sortOrder)
-            {
-                case "Fecha": return View(await _context.Artistas.OrderBy(s => s.FechaNac).ToListAsync());
-                case "Fecha_desc": return View(await _context.Artistas.OrderByDescending(s => s.FechaNac).ToListAsync());
-                case "Genero": return View(await _context.Artistas.OrderBy(s => s.Genero).ToListAsync());
-                case "Genero_desc": return View(await _context.Artistas.OrderByDescending(s => s.Genero).ToListAsync());
-                case "Titulo": return View(await _context.Artistas.OrderBy(s => s.Nombre).ToListAsync());
-                case "Titulo_desc": return View(await _context.Artistas.OrderByDescending(s => s.Nombre).ToListAsync());
-            }
-            return View(await _context.Artistas.ToListAsync());
+            return View(_context.DameTodos().ToList());
         }
 
         public async Task<IActionResult> IndexArtista()
         {
-            var LosArtistas =  _context.Artistas;
+            var LosArtistas =  _context.DameTodos().ToList();
             var filtrado = from artista in LosArtistas
                 where ((DateOnly)artista.FechaNac).Year > 1950
                 select artista;
-            return View(await filtrado.ToListAsync());
+            return View(filtrado.ToList());
         }
 
         // GET: Artistas/Details/5
@@ -62,8 +43,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var artista = await _context.Artistas
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var artista = _context.DameUno((int)id);
+     
             if (artista == null)
             {
                 return NotFound();
@@ -87,8 +68,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(artista);
-                await _context.SaveChangesAsync();
+                _context.Agregar(artista);
                 return RedirectToAction(nameof(Index));
             }
             return View(artista);
@@ -102,7 +82,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var artista = await _context.Artistas.FindAsync(id);
+            var artista = _context.DameUno((int)id);
             if (artista == null)
             {
                 return NotFound();
@@ -126,8 +106,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(artista);
-                    await _context.SaveChangesAsync();
+                    _context.Modificar((int)id, artista);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -153,8 +132,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var artista = await _context.Artistas
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var artista = _context.DameUno((int)id);
             if (artista == null)
             {
                 return NotFound();
@@ -168,19 +146,18 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var artista = await _context.Artistas.FindAsync(id);
+            var artista = _context.DameUno((int)id);
             if (artista != null)
             {
-                _context.Artistas.Remove(artista);
+                _context.Borrar((int)id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ArtistaExists(int id)
         {
-            return _context.Artistas.Any(e => e.Id == id);
+            return _context.DameTodos().ToList().Any(e => e.Id == id);
         }
     }
 }
