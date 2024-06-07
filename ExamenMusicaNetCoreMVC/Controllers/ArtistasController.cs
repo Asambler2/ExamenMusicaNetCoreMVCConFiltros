@@ -21,7 +21,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: Artistas
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index()
         {
             return View(_context.DameTodos().ToList());
         }

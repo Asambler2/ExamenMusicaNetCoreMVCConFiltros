@@ -4,6 +4,7 @@ using ExamenMusicaNetCoreMVC.ViewModels;
 using ExamenMusicaNetCoreMVC.Models;
 using ExamenMusicaNetCoreMVC.Servicios;
 using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
+using ExamenMusicaNetCoreMVC.ViewModels.ModelGrupoConciertos;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<GrupoCContext>(options =>
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<GrupoCContext>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IListaConciertosPorGrupo, ListaConciertosPorGrupo>();
 builder.Services.AddScoped<IListaGruposConListaDeConciertos, ListaGruposConListaDeConciertos>();
+builder.Services.AddScoped<IListaGruposConciertos, ListaGrupoConcierto>();
 builder.Services.AddScoped(typeof(IRepositorioGenerico<>), typeof(RepositorioGeneral<>));
 var app = builder.Build();
 

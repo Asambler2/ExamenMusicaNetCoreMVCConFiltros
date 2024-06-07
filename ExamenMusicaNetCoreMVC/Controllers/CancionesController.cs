@@ -23,7 +23,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: Canciones
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index()
         {
             var examenMusicaNetCoreMVCContext = _context.DameTodos().ToList();
 
@@ -38,7 +38,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = _context.DameUno((int)id)
+            var cancione = _context.DameUno((int)id);
     
             if (cancione == null)
             {

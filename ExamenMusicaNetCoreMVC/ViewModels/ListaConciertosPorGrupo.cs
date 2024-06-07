@@ -11,7 +11,7 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
         {
             this._context= _context;
         }
-        public List<Concierto> DameListaConciertosPorGrupo(string Grupo)
+        public List<Conciertos> DameListaConciertosPorGrupo(string Grupo)
         {
             var resultado =
                 from c in this._context.Conciertos
@@ -20,7 +20,7 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
                     join g in _context.Grupos
                     on cg.GruposId equals g.Id
                 where g.Nombre.Equals(Grupo)
-                select new Concierto()
+                select new Conciertos()
                 {
                     Id = c.Id,
                     Fecha = c.Fecha == null ? DateTime.MinValue : c.Fecha,

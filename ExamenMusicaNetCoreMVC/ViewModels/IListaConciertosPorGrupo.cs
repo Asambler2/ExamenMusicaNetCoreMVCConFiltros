@@ -2,6 +2,6 @@
 {
     public interface IListaConciertosPorGrupo
     {
-        public List<Concierto> DameListaConciertosPorGrupo(string Grupo);
+        public List<Conciertos> DameListaConciertosPorGrupo(string Grupo);
     }
 }

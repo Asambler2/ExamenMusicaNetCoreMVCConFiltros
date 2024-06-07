@@ -5,10 +5,10 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
     public class ConciertoGroupByGrupos
     {
         public string NombreGrupo { get; set; }
-        public List<Concierto> ListaConciertos { get; set; }
+        public List<Conciertos> ListaConciertos { get; set; }
     }
 
-    public class Concierto
+    public class Conciertos
     {
         public int Id { get; set; }
         public DateTime? Fecha { get; set; }
