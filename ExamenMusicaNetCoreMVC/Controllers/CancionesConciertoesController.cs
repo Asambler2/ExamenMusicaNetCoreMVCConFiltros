@@ -37,7 +37,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancionesConcierto = _context.DameUno((int)id);
+            var cancionesConcierto = await _context.DameUno((int)id);
                 
             if (cancionesConcierto == null)
             {
@@ -48,10 +48,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: CancionesConciertoes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["CancionesId"] = new SelectList(_cancionesContext.DameTodos().ToList(), "Id", "Titulo");
-            ViewData["ConciertosId"] = new SelectList(_conciertoContext.DameTodos().ToList(), "Id", "Lugar");
+            ViewData["CancionesId"] = new SelectList(await _cancionesContext.DameTodos(), "Id", "Titulo");
+            ViewData["ConciertosId"] = new SelectList(await _conciertoContext.DameTodos(), "Id", "Lugar");
             return View();
         }
 
@@ -64,11 +64,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(cancionesConcierto);
+                await _context.Agregar(cancionesConcierto);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CancionesId"] = new SelectList(_cancionesContext.DameTodos().ToList(), "Id", "Titulo", cancionesConcierto.CancionesId);
-            ViewData["ConciertosId"] = new SelectList(_cancionesContext.DameTodos().ToList(), "Id", "Lugar", cancionesConcierto.ConciertosId);
+            ViewData["CancionesId"] = new SelectList(await _cancionesContext.DameTodos(), "Id", "Titulo", cancionesConcierto.CancionesId);
+            ViewData["ConciertosId"] = new SelectList(await _cancionesContext.DameTodos(), "Id", "Lugar", cancionesConcierto.ConciertosId);
             return View(cancionesConcierto);
         }
 
@@ -80,13 +80,13 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancionesConcierto = _context.DameUno((int)id);
+            var cancionesConcierto = await _context.DameUno((int)id);
             if (cancionesConcierto == null)
             {
                 return NotFound();
             }
-            ViewData["CancionesId"] = new SelectList(_cancionesContext.DameTodos().ToList(), "Id", "Titulo", cancionesConcierto.CancionesId);
-            ViewData["ConciertosId"] = new SelectList(_cancionesContext.DameTodos().ToList(), "Id", "Lugar", cancionesConcierto.ConciertosId);
+            ViewData["CancionesId"] = new SelectList(await _cancionesContext.DameTodos(), "Id", "Titulo", cancionesConcierto.CancionesId);
+            ViewData["ConciertosId"] = new SelectList(await _cancionesContext.DameTodos(), "Id", "Lugar", cancionesConcierto.ConciertosId);
             return View(cancionesConcierto);
         }
 
@@ -110,7 +110,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CancionesConciertoExists(cancionesConcierto.Id))
+                    if (!CancionesConciertoExists(cancionesConcierto.Id).Result)
                     {
                         return NotFound();
                     }
@@ -121,8 +121,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CancionesId"] = new SelectList(_cancionesContext.DameTodos().ToList(), "Id", "Titulo", cancionesConcierto.CancionesId);
-            ViewData["ConciertosId"] = new SelectList(_conciertoContext.DameTodos().ToList(), "Id", "Lugar", cancionesConcierto.ConciertosId);
+            ViewData["CancionesId"] = new SelectList(await _cancionesContext.DameTodos(), "Id", "Titulo", cancionesConcierto.CancionesId);
+            ViewData["ConciertosId"] = new SelectList(await _conciertoContext.DameTodos(), "Id", "Lugar", cancionesConcierto.ConciertosId);
             return View(cancionesConcierto);
         }
 
@@ -134,7 +134,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancionesConcierto = _context.DameUno((int)id);
+            var cancionesConcierto = await _context.DameUno((int)id);
        
             if (cancionesConcierto == null)
             {
@@ -152,15 +152,16 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             var cancionesConcierto = _context.DameUno((int)id);
             if (cancionesConcierto != null)
             {
-                _context.Borrar((int)id);
+                 await _context.Borrar((int)id);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CancionesConciertoExists(int id)
+        private async Task<bool> CancionesConciertoExists(int id)
         {
-            return _context.DameTodos().ToList().Any(e => e.Id == id);
+            var datos = await _context.DameTodos();
+             return  datos.Any(e => e.Id == id);
         }
     }
 }

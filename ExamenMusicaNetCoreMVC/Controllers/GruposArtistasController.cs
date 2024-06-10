@@ -6,23 +6,29 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class GruposArtistasController : Controller
     {
-        private readonly GrupoCContext _context;
+        private readonly IRepositorioGenerico<Grupo> _contextGrupo;
+        private readonly IRepositorioGenerico<VistaGruposArtista> _contextVistaGrupoArtista;
+        private readonly IRepositorioGenerico<Artista> _contextArtista;
+        private readonly IRepositorioGenerico<GruposArtista> _contextGrupoArtista;
 
-        public GruposArtistasController(GrupoCContext context)
+        public GruposArtistasController(IRepositorioGenerico<VistaGruposArtista> contextVistaGrupoArtista, IRepositorioGenerico<GruposArtista> contextGrupoArtista, IRepositorioGenerico<Grupo> contextGrupo, IRepositorioGenerico<Artista> contextArtista)
         {
-            _context = context;
+            this._contextVistaGrupoArtista = contextVistaGrupoArtista;
+            this._contextGrupo = contextGrupo;
+            this._contextArtista = contextArtista;
+            this._contextGrupoArtista = contextGrupoArtista;
         }
 
         // GET: GruposArtistas
         public async Task<IActionResult> Index()
         {
-            var examenMusicaNetCoreMVCContext = _context.GruposArtistas.Include(g => g.Artistas).Include(g => g.Grupos);
-            return View(await examenMusicaNetCoreMVCContext.ToListAsync());
+            return View(await _contextVistaGrupoArtista.DameTodos());
         }
 
         // GET: GruposArtistas/Details/5
@@ -33,10 +39,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var gruposArtista = await _context.GruposArtistas
-                .Include(g => g.Artistas)
-                .Include(g => g.Grupos)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var gruposArtista = await _contextVistaGrupoArtista.DameUno((int)id);
+
             if (gruposArtista == null)
             {
                 return NotFound();
@@ -46,10 +50,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: GruposArtistas/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ArtistasId"] = new SelectList(_context.Artistas, "Id", "Nombre");
-            ViewData["GruposId"] = new SelectList(_context.Grupos, "Id", "Nombre");
+            ViewData["ArtistasId"] = new SelectList(await _contextArtista.DameTodos(), "Id", "Nombre");
+            ViewData["GruposId"] = new SelectList(await _contextGrupo.DameTodos(), "Id", "Nombre");
             return View();
         }
 
@@ -62,12 +66,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(gruposArtista);
-                await _context.SaveChangesAsync();
+                await _contextGrupoArtista.Agregar(gruposArtista);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ArtistasId"] = new SelectList(_context.Artistas, "Id", "Nombre", gruposArtista.ArtistasId);
-            ViewData["GruposId"] = new SelectList(_context.Grupos, "Id", "Nombre", gruposArtista.GruposId);
+            ViewData["ArtistasId"] = new SelectList(await _contextArtista.DameTodos(), "Id", "Nombre", gruposArtista.ArtistasId);
+            ViewData["GruposId"] = new SelectList(await _contextGrupo.DameTodos(), "Id", "Nombre", gruposArtista.GruposId);
             return View(gruposArtista);
         }
 

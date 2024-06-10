@@ -10,17 +10,18 @@ using ExamenMusicaNetCoreMVC.ViewModels;
 using Microsoft.Data.SqlClient;
 using System.Drawing;
 using System.Security.Policy;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class GrupoesController : Controller
     {
-        private readonly GrupoCContext _context;
+        private readonly IRepositorioGenerico<Grupo> _contextGrupo;
         public readonly IListaGruposConListaDeConciertos BuilderLista;
 
-        public GrupoesController(GrupoCContext context, IListaGruposConListaDeConciertos builderLista)
+        public GrupoesController(IRepositorioGenerico<Grupo> contextGrupo, IListaGruposConListaDeConciertos builderLista)
         {
-            _context = context;
+            _contextGrupo = contextGrupo;
             this.BuilderLista = builderLista;
         }
 
@@ -31,18 +32,22 @@ namespace ExamenMusicaNetCoreMVC.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
+            var listaGrupoAsync = await _contextGrupo.DameTodos();
             if (!String.IsNullOrEmpty(searchString))
             {
-                return View(await _context.Grupos.Where(s => s.Nombre.Contains(searchString)).ToListAsync());
+                var listaGrupoAsyncFiltrada = listaGrupoAsync.Where(s => s.Nombre.Contains(searchString));
+                return View(listaGrupoAsyncFiltrada);
             }
 
             switch (sortOrder)
             {
-                case "Nombre": return View(await _context.Grupos.OrderBy(s => s.Nombre).ToListAsync());
-                case "Nombre_desc": return View(await _context.Grupos.OrderByDescending(s => s.Nombre).ToListAsync());
+                case "Nombre": var listGrupoNomAsyncFiltrada = listaGrupoAsync.OrderBy(s => s.Nombre);
+                                return View(listGrupoNomAsyncFiltrada);
+                case "Nombre_desc": var listGrupoNomDescAsyncFiltrada = listaGrupoAsync.OrderBy(s => s.Nombre);
+                                return View(listGrupoNomDescAsyncFiltrada);
             }
 
-            return View(await _context.Grupos.ToListAsync());
+            return View(listaGrupoAsync);
         }
 
         public async Task<IActionResult> ConciertosPorGrupos(string grupo = "", int page = 1, int size = 20, int total = 0)
@@ -62,8 +67,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var grupo = await _context.Grupos
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var grupo = await _contextGrupo.DameUno((int)id);
             if (grupo == null)
             {
                 return NotFound();
@@ -87,8 +91,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(grupo);
-                await _context.SaveChangesAsync();
+                await _contextGrupo.Agregar(grupo);
                 return RedirectToAction(nameof(Index));
             }
             return View(grupo);
@@ -102,7 +105,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var grupo = await _context.Grupos.FindAsync(id);
+            var grupo = await _contextGrupo.DameUno((int)id);
             if (grupo == null)
             {
                 return NotFound();
@@ -126,12 +129,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(grupo);
-                    await _context.SaveChangesAsync();
+                    _contextGrupo.Modificar((int)id, grupo);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GrupoExists(grupo.Id))
+                    if (!(await GrupoExists(grupo.Id)))
                     {
                         return NotFound();
                     }
@@ -153,8 +155,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var grupo = await _context.Grupos
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var grupo = await _contextGrupo.DameUno((int)id);
             if (grupo == null)
             {
                 return NotFound();
@@ -168,19 +169,19 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var grupo = await _context.Grupos.FindAsync(id);
+            var grupo = await _contextGrupo.DameUno(id);
             if (grupo != null)
             {
-                _context.Grupos.Remove(grupo);
+                await _contextGrupo.Borrar(id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GrupoExists(int id)
+        private async Task<bool> GrupoExists(int id)
         {
-            return _context.Grupos.Any(e => e.Id == id);
+            var datos = await _contextGrupo.DameTodos();
+            return datos.Any(e => e.Id == id);
         }
     }
 }

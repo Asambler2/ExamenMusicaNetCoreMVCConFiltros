@@ -35,7 +35,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var usuario = _context.DameUno((int)id);
+            var usuario = await _context.DameUno((int)id);
             if (usuario == null)
             {
                 return NotFound();
@@ -59,7 +59,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(usuario);
+                await _context.Agregar(usuario);
                 return RedirectToAction(nameof(Index));
             }
             return View(usuario);
@@ -73,7 +73,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var usuario = _context.DameUno((int)id);
+            var usuario = await _context.DameUno((int)id);
             if (usuario == null)
             {
                 return NotFound();
@@ -123,7 +123,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var usuario = _context.DameUno((int)id);
+            var usuario = await _context.DameUno((int)id);
             if (usuario == null)
             {
                 return NotFound();
@@ -137,10 +137,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var usuario = _context.DameUno((int)id);
+            var usuario = await _context.DameUno((int)id);
             if (usuario != null)
             {
-                _context.Borrar((int)id);
+                await _context.Borrar((int)id);
             }
             return RedirectToAction(nameof(Index));
         }

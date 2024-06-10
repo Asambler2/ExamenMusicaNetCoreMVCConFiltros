@@ -25,9 +25,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Canciones
         public async Task<IActionResult> Index()
         {
-            var examenMusicaNetCoreMVCContext = _context.DameTodos().ToList();
-
-            return View(examenMusicaNetCoreMVCContext);
+            return View(await _context.DameTodos());
         }
 
         // GET: Canciones/Details/5
@@ -38,7 +36,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = _context.DameUno((int)id);
+            var cancione = await _context.DameUno((int)id);
     
             if (cancione == null)
             {
@@ -49,9 +47,9 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: Canciones/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo");
+            ViewData["AlbumesId"] = new SelectList(await _albunescontext.DameTodos(), "Id", "Titulo");
             return View();
         }
 
@@ -64,10 +62,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(cancione);
+                await _context.Agregar(cancione);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo", cancione.AlbumesId);
+            ViewData["AlbumesId"] = new SelectList(await _albunescontext.DameTodos(), "Id", "Titulo", cancione.AlbumesId);
             return View(cancione);
         }
 
@@ -79,12 +77,12 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = _context.DameUno((int)id);
+            var cancione = await _context.DameUno((int)id);
             if (cancione == null)
             {
                 return NotFound();
             }
-            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo", cancione.AlbumesId);
+            ViewData["AlbumesId"] = new SelectList(await _albunescontext.DameTodos(), "Id", "Titulo", cancione.AlbumesId);
             return View(cancione);
         }
 
@@ -108,7 +106,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CancioneExists(cancione.Id))
+                    if ( !(await CancioneExists(cancione.Id)))
                     {
                         return NotFound();
                     }
@@ -119,7 +117,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AlbumesId"] = new SelectList(_albunescontext.DameTodos().ToList(), "Id", "Titulo", cancione.AlbumesId);
+            ViewData["AlbumesId"] = new SelectList(await _albunescontext.DameTodos(), "Id", "Titulo", cancione.AlbumesId);
             return View(cancione);
         }
 
@@ -131,7 +129,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var cancione = _context.DameUno((int)id);
+            var cancione = await _context.DameUno((int)id);
 
             if (cancione == null)
             {
@@ -146,18 +144,19 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cancione = _context.DameUno((int)id);
+            var cancione = await _context.DameUno((int)id);
             if (cancione != null)
             {
-                _context.Borrar((int)id);
+                await _context.Borrar((int)id);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CancioneExists(int id)
+        private async Task<bool> CancioneExists(int id)
         {
-            return _context.DameTodos().ToList().Any(e => e.Id == id);
+            var datos = await _context.DameTodos();
+            return datos.Any(e => e.Id == id);
         }
     }
 }

@@ -163,7 +163,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             var albume = _context.DameUno((int)id);
             if (albume != null)
             {
-                _context.Borrar((int)id);
+                await _context.Borrar((int)id);
             }
 
             return RedirectToAction(nameof(Index));

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Models;
 using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
@@ -28,7 +29,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
 
         public async Task<IActionResult> IndexConcierto()
         {
-            var conciertos = _context.DameTodos();
+            var conciertos = await _context.DameTodos();
             var filtrado = from concierto in conciertos
                 where concierto.Precio > 30 && ((DateTime)concierto.Fecha).Year > 2015
                 select concierto;
@@ -44,7 +45,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var concierto = _context.DameUno((int)id);
+            var concierto = await _context.DameUno((int)id);
             if (concierto == null)
             {
                 return NotFound();
@@ -68,7 +69,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(concierto);
+                await _context.Agregar(concierto);
                 return RedirectToAction(nameof(Index));
             }
             return View(concierto);
@@ -82,7 +83,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var concierto = _context.DameUno((int)id);
+            var concierto = await _context.DameUno((int)id);
             if (concierto == null)
             {
                 return NotFound();
@@ -110,7 +111,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ConciertoExists(concierto.Id))
+                    if (!(await ConciertoExists(concierto.Id)))
                     {
                         return NotFound();
                     }
@@ -132,7 +133,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var concierto = _context.DameUno((int)id);
+            var concierto = await _context.DameUno((int)id);
             if (concierto == null)
             {
                 return NotFound();
@@ -149,15 +150,16 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             var concierto = _context.DameUno((int)id);
             if (concierto != null)
             {
-                _context.Borrar((int)id);
+                await _context.Borrar((int)id);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ConciertoExists(int id)
+        private async Task<bool> ConciertoExists(int id)
         {
-            return _context.DameTodos().Any(e => e.Id == id);
+            var datos = await _context.DameTodos();
+             return datos.Any(e => e.Id == id);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         public async Task<IActionResult> Index()
         {
             IListaGruposConciertos ListaGrupoConcierto = new ListaGrupoConcierto(_context, _conciertoContext, _grupoContext);
-            return View(ListaGrupoConcierto.DevolverListaGrupoConcierto());
+            return View(await ListaGrupoConcierto.DevolverListaGrupoConcierto());
         }
 
         // GET: ConciertosGrupoes/Details/5
@@ -39,7 +39,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var conciertosGrupo = _context.DameUno((int)id);
+            var conciertosGrupo = await _context.DameUno((int)id);
   
             if (conciertosGrupo == null)
             {
@@ -50,10 +50,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: ConciertosGrupoes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ConciertosId"] = new SelectList(_conciertoContext.DameTodos(), "Id", "Lugar");
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos(), "Id", "Nombre");
+            ViewData["ConciertosId"] = new SelectList(await _conciertoContext.DameTodos(), "Id", "Lugar");
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre");
             return View();
         }
 
@@ -66,11 +66,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(conciertosGrupo);
+                await _context.Agregar(conciertosGrupo);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ConciertosId"] = new SelectList(_conciertoContext.DameTodos(), "Id", "Lugar", conciertosGrupo.ConciertosId);
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos(), "Id", "Nombre", conciertosGrupo.GruposId);
+            ViewData["ConciertosId"] = new SelectList(await _conciertoContext.DameTodos(), "Id", "Lugar", conciertosGrupo.ConciertosId);
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre", conciertosGrupo.GruposId);
             return View(conciertosGrupo);
         }
 
@@ -82,13 +82,13 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var conciertosGrupo = _context.DameUno((int)id);
+            var conciertosGrupo = await _context.DameUno((int)id);
             if (conciertosGrupo == null)
             {
                 return NotFound();
             }
-            ViewData["ConciertosId"] = new SelectList(_conciertoContext.DameTodos(), "Id", "Lugar", conciertosGrupo.ConciertosId);
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos(), "Id", "Nombre", conciertosGrupo.GruposId);
+            ViewData["ConciertosId"] = new SelectList(await _conciertoContext.DameTodos(), "Id", "Lugar", conciertosGrupo.ConciertosId);
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre", conciertosGrupo.GruposId);
             return View(conciertosGrupo);
         }
 
@@ -112,7 +112,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ConciertosGrupoExists(conciertosGrupo.Id))
+                    if (!(await ConciertosGrupoExists(conciertosGrupo.Id)))
                     {
                         return NotFound();
                     }
@@ -123,8 +123,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ConciertosId"] = new SelectList(_conciertoContext.DameTodos(), "Id", "Lugar", conciertosGrupo.ConciertosId);
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos(), "Id", "Nombre", conciertosGrupo.GruposId);
+            ViewData["ConciertosId"] = new SelectList(await _conciertoContext.DameTodos(), "Id", "Lugar", conciertosGrupo.ConciertosId);
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre", conciertosGrupo.GruposId);
             return View(conciertosGrupo);
         }
 
@@ -136,7 +136,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var conciertosGrupo = _context.DameUno((int)id);
+            var conciertosGrupo = await _context.DameUno((int)id);
             
             if (conciertosGrupo == null)
             {
@@ -154,14 +154,15 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             var conciertosGrupo = _context.DameUno((int)id);
             if (conciertosGrupo != null)
             {
-                _context.Borrar((int)id);
+                await _context.Borrar((int)id);
             }
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ConciertosGrupoExists(int id)
+        private async Task<bool> ConciertosGrupoExists(int id)
         {
-            return _context.DameTodos().Any(e => e.Id == id);
+            var datos = await _context.DameTodos();
+            return datos.Any(e => e.Id == id);
         }
     }
 }

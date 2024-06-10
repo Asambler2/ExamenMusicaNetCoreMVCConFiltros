@@ -23,12 +23,12 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Artistas
         public async Task<IActionResult> Index()
         {
-            return View(_context.DameTodos().ToList());
+            return View(await _context.DameTodos());
         }
 
         public async Task<IActionResult> IndexArtista()
         {
-            var LosArtistas =  _context.DameTodos().ToList();
+            var LosArtistas = await _context.DameTodos();
             var filtrado = from artista in LosArtistas
                 where ((DateOnly)artista.FechaNac).Year > 1950
                 select artista;
@@ -43,7 +43,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var artista = _context.DameUno((int)id);
+            var artista = await _context.DameUno((int)id);
      
             if (artista == null)
             {
@@ -68,7 +68,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar(artista);
+                await _context.Agregar(artista);
                 return RedirectToAction(nameof(Index));
             }
             return View(artista);
@@ -82,7 +82,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var artista = _context.DameUno((int)id);
+            var artista = await _context.DameUno((int)id);
             if (artista == null)
             {
                 return NotFound();
@@ -110,7 +110,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArtistaExists(artista.Id))
+                    if (!(await ArtistaExists(artista.Id)))
                     {
                         return NotFound();
                     }
@@ -132,7 +132,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var artista = _context.DameUno((int)id);
+            var artista = await _context.DameUno((int)id);
             if (artista == null)
             {
                 return NotFound();
@@ -146,18 +146,19 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var artista = _context.DameUno((int)id);
+            var artista = await _context.DameUno((int)id);
             if (artista != null)
             {
-                _context.Borrar((int)id);
+                await _context.Borrar((int)id);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ArtistaExists(int id)
+        private async Task<bool> ArtistaExists(int id)
         {
-            return _context.DameTodos().ToList().Any(e => e.Id == id);
+            var datos = await _context.DameTodos();
+            return datos.Any(e => e.Id == id);
         }
     }
 }

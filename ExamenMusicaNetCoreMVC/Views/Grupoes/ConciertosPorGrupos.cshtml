@@ -65,36 +65,36 @@
             int totalElementos = 0;
             string elGrupo = "";
             Console.WriteLine("Tamaño: " + tamano + ", pagina: " + pagina + ", contador: " + count + ", cota superior: " + tamano * (pagina) + ", grupo: " + ViewBag.Grupo);
-            @foreach (var Linea in item.ListaConciertos)
+            @foreach (var linea in item.ListaConciertos.Result)
             {
-                @if ((Linea.Grupo == null ? "" : Linea.Grupo).Equals(ViewBag.Grupo))
+                @if ((linea.Grupo == null ? "" : linea.Grupo).Equals(ViewBag.Grupo))
                 {
-                    elGrupo = Linea.Grupo;
+                    elGrupo = linea.Grupo;
                     totalElementos++;
                 }
-                @if (((Linea.Grupo == null ? "" : Linea.Grupo).Equals(ViewBag.Grupo) && totalElementos < tamano * (pagina) && count < totalElementos))
+                @if (((linea.Grupo == null ? "" : linea.Grupo).Equals(ViewBag.Grupo) && totalElementos < tamano * (pagina) && count < totalElementos))
                 {
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Grupo)
+                            @Html.DisplayFor(modelItem => linea.Grupo)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Id)
+                            @Html.DisplayFor(modelItem => linea.Id)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Fecha)
+                            @Html.DisplayFor(modelItem => linea.Fecha)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Genero)
+                            @Html.DisplayFor(modelItem => linea.Genero)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Lugar)
+                            @Html.DisplayFor(modelItem => linea.Lugar)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Titulo)
+                            @Html.DisplayFor(modelItem => linea.Titulo)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => Linea.Precio)
+                            @Html.DisplayFor(modelItem => linea.Precio)
                         </td>
                         <td>
                             @Html.ActionLink("Edit", "Edit", new

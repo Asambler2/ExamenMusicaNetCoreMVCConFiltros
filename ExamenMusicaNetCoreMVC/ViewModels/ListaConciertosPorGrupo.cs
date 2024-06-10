@@ -16,7 +16,7 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
             this._contextGrupos = contextGrupos;
             this._contextConciertoGrupo= contextConciertoGrupo;
         }
-        public async Task<List<Conciertos>> DameListaConciertosPorGrupo(string Grupo)
+        public async Task<List<Conciertos>> DameListaConciertosPorGrupo(string grupo)
         {
             var resultado =
                 from c in await _contextConciertos.DameTodos()
@@ -24,7 +24,7 @@ namespace ExamenMusicaNetCoreMVC.ViewModels
                     on c.Id equals cg.ConciertosId
                     join g in await _contextGrupos.DameTodos()
                     on cg.GruposId equals g.Id
-                where g.Nombre.Equals(Grupo)
+                where g.Nombre.Equals(grupo)
                 select new Conciertos()
                 {
                     Id = c.Id,
