@@ -17,11 +17,11 @@ namespace ExamenMusicaNetCoreMVC.ViewModels.ModelGrupoConciertos
             this._conciertoContext = conciertoContext;
             this._grupoContext = grupoContext;
         }
-        public List<GrupoConciertoUnion> DevolverListaGrupoConcierto()
+        public async Task<List<GrupoConciertoUnion>> DevolverListaGrupoConcierto()
         {
-            var Lista = from c in _conciertoContext.DameTodos()
-                join cg in _context.DameTodos() on c.Id equals cg.ConciertosId
-                join g in _grupoContext.DameTodos() on cg.GruposId equals g.Id
+            var Lista = from c in await _conciertoContext.DameTodos()
+                join cg in await _context.DameTodos() on c.Id equals cg.ConciertosId
+                join g in await _grupoContext.DameTodos() on cg.GruposId equals g.Id
                 select new GrupoConciertoUnion()
                 {
                     Id = cg.Id,

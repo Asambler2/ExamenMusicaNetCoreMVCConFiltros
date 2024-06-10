@@ -2,6 +2,6 @@
 {
     public interface IListaConciertosPorGrupo
     {
-        public List<Conciertos> DameListaConciertosPorGrupo(string Grupo);
+        public Task<List<Conciertos>> DameListaConciertosPorGrupo(string Grupo);
     }
 }

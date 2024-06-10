@@ -51,7 +51,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             ViewBag.Size = size;
             ViewBag.Total = total;
             ViewBag.Grupo = grupo;
-            return View(this.BuilderLista.DameGruposConListaConciertos());
+            return View(await this.BuilderLista.DameGruposConListaConciertos());
         }
 
         // GET: Grupoes/Details/5

@@ -29,7 +29,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         public async Task<IActionResult> Index()
         {
 
-            var examenMusicaNetCoreMVCContext = _contextVista.DameTodos();
+            var examenMusicaNetCoreMVCContext = await _contextVista.DameTodos();
 
             return View(examenMusicaNetCoreMVCContext);
         }
@@ -37,13 +37,13 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         public async Task<IActionResult> IndexAlbum()
         {
 
-            var examenMusicaNetCoreMVCContext = _contextVista.DameTodos();
+            var examenMusicaNetCoreMVCContext = await _contextVista.DameTodos();
             var filtrado = from album in examenMusicaNetCoreMVCContext
                 where album.Genero.ToLower().Equals("heavy metal") && album.Titulo.Contains("u")
                 select album;
 
 
-            return View(filtrado.ToList());
+            return View(filtrado);
         }
 
         // GET: Albumes/Details/5
@@ -54,7 +54,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = _contextVista.DameUno((int)id);
+            var albume = await _contextVista.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
@@ -64,9 +64,9 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: Albumes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre");
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre");
             return View();
         }
 
@@ -79,10 +79,10 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Agregar((Albume)albume);;
+                await _context.Agregar((Albume)albume);;
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre", albume.GruposId);
             return View(albume);
         }
 
@@ -94,12 +94,12 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = _context.DameUno((int)id);
+            var albume = await _context.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
             }
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre", albume.GruposId);
             return View(albume);
         }
 
@@ -119,11 +119,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Modificar(id, albume);
+                     _context.Modificar(id, albume);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AlbumeExists(albume.Id))
+                    if (!AlbumeExists(albume.Id).Result)
                     {
                         return NotFound();
                     }
@@ -134,7 +134,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GruposId"] = new SelectList(_grupoContext.DameTodos().ToList(), "Id", "Nombre", albume.GruposId);
+            ViewData["GruposId"] = new SelectList(await _grupoContext.DameTodos(), "Id", "Nombre", albume.GruposId);
             return View(albume);
         }
 
@@ -146,7 +146,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var albume = _context.DameUno((int)id);
+            var albume = await _context.DameUno((int)id);
             if (albume == null)
             {
                 return NotFound();
@@ -169,9 +169,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AlbumeExists(int id)
+        private async Task<bool> AlbumeExists(int id)
         {
-            return _context.DameTodos().ToList().Any(e => e.Id == id);
+            var datos = await _context.DameTodos();
+            return datos.Any(e => e.Id == id);
+
         }
     }
 }

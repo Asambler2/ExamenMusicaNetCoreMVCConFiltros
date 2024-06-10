@@ -24,7 +24,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Usuario
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            return View( _context.DameTodos().ToList());
+            return View( await _context.DameTodos());
         }
 
         // GET: Usuario/Details/5

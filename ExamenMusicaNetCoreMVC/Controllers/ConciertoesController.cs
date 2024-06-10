@@ -23,7 +23,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: Conciertoes
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            return View(_context.DameTodos());
+            return View(await _context.DameTodos());
         }
 
         public async Task<IActionResult> IndexConcierto()

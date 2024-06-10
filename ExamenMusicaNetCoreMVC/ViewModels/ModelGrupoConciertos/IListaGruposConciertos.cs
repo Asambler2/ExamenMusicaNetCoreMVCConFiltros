@@ -2,6 +2,6 @@
 {
     public interface IListaGruposConciertos
     {
-        public List<GrupoConciertoUnion> DevolverListaGrupoConcierto();
+        public Task<List<GrupoConciertoUnion>> DevolverListaGrupoConcierto();
     }
 }

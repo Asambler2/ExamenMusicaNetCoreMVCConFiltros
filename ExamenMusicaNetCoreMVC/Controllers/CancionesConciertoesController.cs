@@ -26,8 +26,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         // GET: CancionesConciertoes
         public async Task<IActionResult> Index()
         {
-            var examenMusicaNetCoreMVCContext = _context.DameTodos().ToList();
-            return View(examenMusicaNetCoreMVCContext.ToList());
+            return View(await _context.DameTodos());
         }
 
         // GET: CancionesConciertoes/Details/5

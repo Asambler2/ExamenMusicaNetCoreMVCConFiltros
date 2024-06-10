@@ -7,40 +7,40 @@ namespace ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico
     public class RepositorioGeneral<T> :IRepositorioGenerico<T> where T : class
     {
         private readonly GrupoCContext _context = new();
-        public List<T> DameTodos()
+        public async Task<List<T>> DameTodos()
         {
-            return _context.Set<T>().AsNoTracking().ToList();
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
-        public T? DameUno(int Id)
+        public async Task<T?> DameUno(int Id)
         {
-            return _context.Set<T>().Find(Id);
+            return await _context.Set<T>().FindAsync(Id);
         }
 
-        public bool Borrar(int Id)
+        public async Task<bool> Borrar(int Id)
         {
-            var elemento = DameUno(Id);
+            var elemento = await DameUno(Id); 
             _context.Set<T>().Remove(elemento);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public bool Agregar(T element)
-        {
+        public async Task<bool> Agregar(T element)
+        { 
             _context.Set<T>().Add(element);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public void Modificar(int Id, T element)
+        public async void Modificar(int Id, T element)
         {
             _context.Entry(element).State = EntityState.Modified;
-            _context.SaveChanges();
+            await  _context.SaveChangesAsync();
         }
 
-        public List<T> Filtra(Expression<Func<T, bool>> predicado)
+        public async Task<List<T>> Filtra(Expression<Func<T, bool>> predicado)
         {
-            return _context.Set<T>().Where<T>(predicado).ToList();
+            return await _context.Set<T>().Where<T>(predicado).ToListAsync();
         }
     }
 }

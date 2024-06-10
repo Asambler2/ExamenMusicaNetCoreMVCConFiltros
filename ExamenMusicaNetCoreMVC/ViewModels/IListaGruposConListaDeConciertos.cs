@@ -2,6 +2,6 @@
 {
     public interface IListaGruposConListaDeConciertos
     {
-        List<ConciertoGroupByGrupos> DameGruposConListaConciertos();
+        Task<List<ConciertoGroupByGrupos>> DameGruposConListaConciertos();
     }
 }
