@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ExamenMusicaNetCoreMVC.Models.Albume>
+﻿@model IEnumerable<ExamenMusicaNetCoreMVC.Models.VistaAlbume>
 
 @{
     ViewData["Title"] = "Index";
@@ -23,16 +23,16 @@
     <thead>
         <tr>
             <th>
-                <@* a asp-action="Index" asp-route-sortOrder="@ViewData["OrdenFechaNO"]"> *@@Html.DisplayNameFor(model => model.Fecha)@* </a>*@
+                @Html.DisplayNameFor(model => model.Fecha)
             </th>
             <th>
-                @* <a asp-action="Index" asp-route-sortOrder="@ViewData["OrdenGeneroNO"]"> *@@Html.DisplayNameFor(model => model.Genero)@* </a>*@
+                @Html.DisplayNameFor(model => model.Genero)
             </th>
             <th>
-                @* <a asp-action="Index" asp-route-sortOrder="@ViewData["OrdenTituloNO"]"> *@@Html.DisplayNameFor(model => model.Titulo)@* </a>*@
+                @Html.DisplayNameFor(model => model.Titulo)
             </th>
             <th>
-                @* <a asp-action="Index" asp-route-sortOrder="@ViewData["OrdenGrupoNO"]"> *@@Html.DisplayNameFor(model => model.Grupos)@* </a>*@
+                @Html.DisplayNameFor(model => model.NombreGrupo) del Grupo
             </th>
             <th></th>
         </tr>
@@ -50,7 +50,7 @@
                 @Html.DisplayFor(modelItem => item.Titulo)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Grupos.Id)
+                @Html.DisplayFor(modelItem => item.NombreGrupo)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
