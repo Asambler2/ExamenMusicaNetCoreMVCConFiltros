@@ -82,13 +82,13 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var gruposArtista = await _context.GruposArtistas.FindAsync(id);
+            var gruposArtista = await _contextGrupoArtista.DameUno((int)id);
             if (gruposArtista == null)
             {
                 return NotFound();
             }
-            ViewData["ArtistasId"] = new SelectList(_context.Artistas, "Id", "Nombre", gruposArtista.ArtistasId);
-            ViewData["GruposId"] = new SelectList(_context.Grupos, "Id", "Nombre", gruposArtista.GruposId);
+            ViewData["ArtistasId"] = new SelectList(await _contextArtista.DameTodos(), "Id", "Nombre", gruposArtista.ArtistasId);
+            ViewData["GruposId"] = new SelectList(await _contextGrupo.DameTodos(), "Id", "Nombre", gruposArtista.GruposId);
             return View(gruposArtista);
         }
 
@@ -108,12 +108,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(gruposArtista);
-                    await _context.SaveChangesAsync();
+                    _contextGrupoArtista.Modificar((int)id, gruposArtista);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GruposArtistaExists(gruposArtista.Id))
+                    if (!(await GruposArtistaExists(gruposArtista.Id)))
                     {
                         return NotFound();
                     }
@@ -124,8 +123,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ArtistasId"] = new SelectList(_context.Artistas, "Id", "Nombre", gruposArtista.ArtistasId);
-            ViewData["GruposId"] = new SelectList(_context.Grupos, "Id", "Nombre", gruposArtista.GruposId);
+            ViewData["ArtistasId"] = new SelectList(await _contextArtista.DameTodos(), "Id", "Nombre", gruposArtista.ArtistasId);
+            ViewData["GruposId"] = new SelectList(await _contextGrupo.DameTodos(), "Id", "Nombre", gruposArtista.GruposId);
             return View(gruposArtista);
         }
 
@@ -137,10 +136,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var gruposArtista = await _context.GruposArtistas
-                .Include(g => g.Artistas)
-                .Include(g => g.Grupos)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var gruposArtista = await _contextGrupoArtista.DameUno((int)id);
+ 
             if (gruposArtista == null)
             {
                 return NotFound();
@@ -154,19 +151,19 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var gruposArtista = await _context.GruposArtistas.FindAsync(id);
+            var gruposArtista = await _contextGrupoArtista.DameUno((int)id);
             if (gruposArtista != null)
             {
-                _context.GruposArtistas.Remove(gruposArtista);
+                await _contextGrupoArtista.Borrar((int)id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GruposArtistaExists(int id)
+        private async Task<bool> GruposArtistaExists(int id)
         {
-            return _context.GruposArtistas.Any(e => e.Id == id);
+            var datos = await _contextGrupoArtista.DameTodos();
+            return datos.Any(e => e.Id == id);
         }
     }
 }

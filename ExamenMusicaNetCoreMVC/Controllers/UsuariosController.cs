@@ -101,7 +101,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UsuarioExists(usuario.Id))
+                    if (!(await UsuarioExists(usuario.Id)))
                     {
                         return NotFound();
                     }
@@ -145,9 +145,9 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UsuarioExists(int id)
+        private async Task<bool> UsuarioExists(int id)
         {
-            if (_context.DameUno((int)id) == null)
+            if (await _context.DameUno((int)id) == null)
                 return false;
             else
             {

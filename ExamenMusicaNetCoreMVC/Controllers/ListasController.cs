@@ -6,23 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExamenMusicaNetCoreMVC.Models;
+using ExamenMusicaNetCoreMVC.Servicios.RepositorioGenerico;
 using Microsoft.Data.SqlClient;
 
 namespace ExamenMusicaNetCoreMVC.Controllers
 {
     public class ListasController : Controller
     {
-        private readonly GrupoCContext _context;
+        private readonly IRepositorioGenerico<Lista> _contextLista;
+        private readonly IRepositorioGenerico<Usuario> _contextUsuario;
 
-        public ListasController(GrupoCContext context)
+        public ListasController(IRepositorioGenerico<Lista> contextLista, IRepositorioGenerico<Usuario> contextUsuario)
         {
-            _context = context;
+            _contextLista = contextLista;
+            _contextUsuario = contextUsuario;
         }
 
         // GET: Listas
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            var examenMusicaNetCoreMVCContext = _context.Listas.Include(l => l.Usuario);
+            var examenMusicaNetCoreMVCContext = _contextLista;
 
             ViewData["OrdenNombre"] = sortOrder == "Nombre" ? "Nombre_desc" : "Nombre";
 
@@ -31,15 +34,15 @@ namespace ExamenMusicaNetCoreMVC.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                return View(await examenMusicaNetCoreMVCContext.Where(s => s.Nombre.Contains(searchString)).ToListAsync());
+                return View((await examenMusicaNetCoreMVCContext.DameTodos()).Where(s => s.Nombre.Contains(searchString)));
             }
 
             switch (sortOrder)
             {
-                case "Nombre": return View(await examenMusicaNetCoreMVCContext.OrderBy(s => s.Nombre).ToListAsync());
-                case "Nombre_desc": return View(await examenMusicaNetCoreMVCContext.OrderByDescending(s => s.Nombre).ToListAsync());
+                case "Nombre": return View((await examenMusicaNetCoreMVCContext.DameTodos()).OrderBy(s => s.Nombre));
+                case "Nombre_desc": return View((await examenMusicaNetCoreMVCContext.DameTodos()).OrderByDescending(s => s.Nombre));
             }
-            return View(await examenMusicaNetCoreMVCContext.ToListAsync());
+            return View(await examenMusicaNetCoreMVCContext.DameTodos());
         }
 
         // GET: Listas/Details/5
@@ -50,9 +53,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var lista = await _context.Listas
-                .Include(l => l.Usuario)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var lista = await _contextLista.DameUno((int)id);
             if (lista == null)
             {
                 return NotFound();
@@ -62,9 +63,9 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         }
 
         // GET: Listas/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["UsuarioId"] = new SelectList(_context.Set<Usuario>(), "Id", "Nombre");
+            ViewData["UsuarioId"] = new SelectList(await _contextUsuario.DameTodos(), "Id", "Nombre");
             return View();
         }
 
@@ -77,11 +78,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(lista);
-                await _context.SaveChangesAsync();
+                await _contextLista.Agregar(lista);
+  
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UsuarioId"] = new SelectList(_context.Set<Usuario>(), "Id", "Nombre", lista.UsuarioId);
+            ViewData["UsuarioId"] = new SelectList(await _contextLista.DameTodos(), "Id", "Nombre", lista.UsuarioId);
             return View(lista);
         }
 
@@ -93,12 +94,12 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var lista = await _context.Listas.FindAsync(id);
+            var lista = await _contextLista.DameUno((int)id);
             if (lista == null)
             {
                 return NotFound();
             }
-            ViewData["UsuarioId"] = new SelectList(_context.Set<Usuario>(), "Id", "Nombre", lista.UsuarioId);
+            ViewData["UsuarioId"] = new SelectList(await _contextUsuario.DameTodos(), "Id", "Nombre", lista.UsuarioId);
             return View(lista);
         }
 
@@ -118,12 +119,11 @@ namespace ExamenMusicaNetCoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(lista);
-                    await _context.SaveChangesAsync();
+                    _contextLista.Modificar((int)id, lista);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ListaExists(lista.Id))
+                    if (!(await ListaExists(lista.Id)))
                     {
                         return NotFound();
                     }
@@ -134,7 +134,7 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UsuarioId"] = new SelectList(_context.Set<Usuario>(), "Id", "Nombre", lista.UsuarioId);
+            ViewData["UsuarioId"] = new SelectList(await _contextUsuario.DameTodos(), "Id", "Nombre", lista.UsuarioId);
             return View(lista);
         }
 
@@ -146,9 +146,8 @@ namespace ExamenMusicaNetCoreMVC.Controllers
                 return NotFound();
             }
 
-            var lista = await _context.Listas
-                .Include(l => l.Usuario)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var lista = await _contextLista.DameUno((int)id);
+
             if (lista == null)
             {
                 return NotFound();
@@ -162,19 +161,19 @@ namespace ExamenMusicaNetCoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var lista = await _context.Listas.FindAsync(id);
+            var lista = await _contextLista.DameUno((int)id);
             if (lista != null)
             {
-                _context.Listas.Remove(lista);
+                await _contextLista.Borrar((int)id);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ListaExists(int id)
+        private async Task<bool> ListaExists(int id)
         {
-            return _context.Listas.Any(e => e.Id == id);
+            var datos = await _contextLista.DameTodos();
+            return datos.Any(e => e.Id == id);
         }
     }
 }
